@@ -8,6 +8,8 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
+const webshot = require('webshot');
+var fs = require("fs");
 
 var app = express();
 
@@ -22,6 +24,18 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+
+const optionsMobile = {
+  // screenSize: {
+  //   width: 414,
+  //   height: 736
+  // },
+  shotSize: {
+    width: 500,
+    height: 'all'
+  }
+  //userAgent: 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.20 (KHTML, like Gecko) Mobile/7B298g'
+};
 
 // development only
 if ('development' == app.get('env')) {
