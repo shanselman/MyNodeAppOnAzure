@@ -4,7 +4,7 @@
  */
 
 exports.list = function(req, res){
-  res.send("respond with a resource");
+  // res.send("respond with a resource");
   webshot(req.query.url, 'output-thumbnail.png', optionsMobile, function (err) {
     if (!err) {
       console.log('screenshot taken!');
