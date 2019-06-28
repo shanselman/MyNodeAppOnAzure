@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -10,6 +9,7 @@ var http = require('http');
 var path = require('path');
 const webshot = require('webshot');
 var fs = require("fs");
+const captureWebsite = require('capture-website');
 
 var app = express();
 
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'images')));
 
 const optionsMobile = {
   // screenSize: {
@@ -46,19 +46,44 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 app.get('/thumbnail', function (req, res) {
   // create the screenshot
-  webshot(req.query.url, 'output-thumbnail.png', optionsMobile, function (err) {
+  webshot(req.query.url, 'images/output-thumbnail.png', optionsMobile, function (err) {
     if (!err) {
       console.log('screenshot taken!');
-
       res.status(200).json({
         'id': 'some image',
-        'imgEncoded': base64_encode('output-thumbnail.png')
+        'imgEncoded': "Image Created"
       });
     }
   });
 
 });
 
+app.post('/saveUrlToImage', function (req, res) {
+  // create the screenshot from https://github.com/sindresorhus/capture-website
+  var urlArray = req.body;
+  convertImages.then(function (urlArray) {
+    res.status(200).json(true);
+  })
+});
+
+
+var convertImages = (urlArray) => {
+  var promise1 = new Promise(function (resolve, reject) {
+    urlArray.forEach((url, i) => {
+      var fileName = "images/" + url.replace(url.substring(0, url.indexOf(".") + 1), "") + ".png";
+      if (!fs.existsSync(fileName)) {
+        (async () => {
+          await captureWebsite.file(url, fileName, {
+            width: 800,
+            height: 600
+          })
+        })().then(res.status(200).json(true));
+      }
+      resolve(promise1)
+    })
+  })
+  return promise1;
+}
 var base64_encode = function (file) {
   // read binary data
   var bitmap = fs.readFileSync(file);
@@ -66,6 +91,6 @@ var base64_encode = function (file) {
   return new Buffer(bitmap).toString('base64');
 }
 
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));
 });
