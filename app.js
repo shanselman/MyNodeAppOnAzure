@@ -46,13 +46,12 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 app.get('/saveUrlToImage', function (req, res) {
   // create the screenshot
-  webshot(req.query.url, 'output-thumbnail.png', optionsMobile, function (err) {
+  webshot(req.query.url, 'images/output-thumbnail.png', optionsMobile, function (err) {
     if (!err) {
       console.log('screenshot taken!');
-
       res.status(200).json({
         'id': 'some image',
-        'imgEncoded': base64_encode('output-thumbnail.png')
+        'imgEncoded': "Image Created"
       });
     }
   });
