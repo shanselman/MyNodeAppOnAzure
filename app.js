@@ -24,6 +24,15 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use('/images', express.static(__dirname + '/images'));
+app.use((req, res, nxt) => {
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Header', '*');
+	if(req.method === 'OPTIONS') {
+		res.header('Access-Control-Allow-Methods', '*');
+		return res.status(200).json({});
+	}
+next();
+});
 
 const optionsMobile = {
   // screenSize: {
@@ -61,8 +70,8 @@ app.get('/saveUrlToImage', function (req, res) {
 app.post('/thumbnail', function (req, res) {
   // create the screenshot from https://github.com/sindresorhus/capture-website
   var urlArray = req.body;
-  convertImages(urlArray, function () {
-    res.status(200).json(true);
+  convertImages(urlArray, function (response) {
+    res.status(200).send({ data: response });//json(response);
   })
 });
 var convertImages = async (urlArray, complete) => {
@@ -74,14 +83,14 @@ var convertImages = async (urlArray, complete) => {
           width: 800,
           height: 600,
           scaleFactor: 0.1
-        }).then(callback);
+        }).then(callback());
       })();
     } else {
       callback();
     }
   }, (err) => {
     if (!err)
-      complete()
+      complete(err)
   });
 }
 
