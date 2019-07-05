@@ -25,13 +25,13 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use('/images', express.static(__dirname + '/images'));
 app.use((req, res, nxt) => {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Header', '*');
-	if(req.method === 'OPTIONS') {
-		res.header('Access-Control-Allow-Methods', '*');
-		return res.status(200).json({});
-	}
-next();
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Header', '*');
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', '*');
+    return res.status(204).json({});
+  }
+  next();
 });
 
 const optionsMobile = {
@@ -70,12 +70,18 @@ app.get('/saveUrlToImage', function (req, res) {
 app.post('/thumbnail', function (req, res) {
   // create the screenshot from https://github.com/sindresorhus/capture-website
   var urlArray = req.body;
-  convertImages(urlArray, function (response) {
-    res.status(200).send({ data: response });//json(response);
-  })
-});
+  let callCount = 0;
+  convertImages(urlArray, function () {
+    callCount++;
+    if (callCount >= urlArray.length)
+      res.status(200).send({
+        data: true
+      });
+  });
+})
+
 var convertImages = async (urlArray, complete) => {
-  async_lib.forEach(urlArray, (url, callback) => {
+  async_lib.forEachOf(urlArray, async (url, index, callback) => {
     var fileName = "images/" + url.replace(url.substring(0, url.indexOf(".") + 1), "") + ".png";
     if (!fs.existsSync(fileName)) {
       (async () => {
@@ -83,15 +89,18 @@ var convertImages = async (urlArray, complete) => {
           width: 800,
           height: 600,
           scaleFactor: 0.1
-        }).then(callback());
-      })();
+        })
+      })()
+      .then(() => {
+        complete();
+        callback()
+      })
+
     } else {
+      complete();
       callback();
     }
-  }, (err) => {
-    if (!err)
-      complete(err)
-  });
+  })
 }
 
 var base64_encode = function (file) {
