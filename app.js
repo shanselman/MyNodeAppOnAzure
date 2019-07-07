@@ -78,16 +78,36 @@ app.post('/thumbnail', function (req, res) {
         data: true
       });
   });
-})
+});
+
+const extractHostname = url => {
+  var hostname;
+
+  //find & remove protocol (http, ftp, etc.) and get hostname
+  if (url.indexOf("//") > -1) {
+    hostname = url.split("/")[2];
+  } else {
+    hostname = url.split("/")[0];
+  }
+
+  //find & remove port number
+  hostname = hostname.split(":")[0];
+  //find & remove "?"
+  hostname = hostname.split("?")[0];
+  //replace initial www.
+  hostname = hostname.replace(/^www./gi, '');
+
+  return hostname;
+};
 
 var convertImages = async (urlArray, complete) => {
   async_lib.forEachOf(urlArray, async (url, index, callback) => {
-    var fileName = "images/" + url.replace(url.substring(0, url.indexOf(".") + 1), "") + ".png";
+    var fileName = "images/" + extractHostname(url) + ".png"; //url.replace(url.substring(0, url.indexOf(".") + 1), "") + ".png";
     if (!fs.existsSync(fileName)) {
       (async () => {
         await captureWebsite.file(url, fileName, {
-          width: 800,
-          height: 600,
+          width: 920,
+          height: 980,
           scaleFactor: 0.1
         })
       })()
