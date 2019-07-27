@@ -10,7 +10,7 @@ const webshot = require('webshot');
 var fs = require("fs");
 const captureWebsite = require('capture-website');
 var async_lib = require("async");
-
+var SaveImageData=require("./mongoDB");
 var app = express();
 
 // all environments
@@ -78,6 +78,17 @@ app.post('/thumbnail', function (req, res) {
         data: true
       });
   });
+});
+
+app.post('/SaveUrlBatchImage', function (req, res) {
+  // create the screenshot from https://github.com/sindresorhus/capture-website
+  var urlArray = req.body;
+  SaveImageData(urlArray,function(){
+    res.status(200).send({
+      imagesSaved: true
+    });
+  });
+  
 });
 
 const extractHostname = url => {

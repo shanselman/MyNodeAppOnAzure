@@ -10,6 +10,7 @@
     "capture-website": "^0.4.0",
     "express": "3.4.8",
     "jade": "*",
+    "mongodb": "^3.3.0-beta2",
     "webshot": "^0.18.0"
   }
 }
