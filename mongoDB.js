@@ -4,7 +4,7 @@ var DBConfig = require('./Configs/config');
 const connectionUrl = DBConfig.connectionUrl;
 const databaseName = DBConfig.databaseName;
 
-const SaveImageData= async (urls,callback)=>{
+const SaveImageData= async (ObjBookmark,callback)=>{
     try {
         MongoClient.connect(
             connectionUrl,
@@ -14,7 +14,7 @@ const SaveImageData= async (urls,callback)=>{
             (error, client) => {
               if (client) {
                 const db = client.db(databaseName);
-                urls.forEach(element => {
+                ObjBookmark.bookmakArray.forEach(element => {
                 db.collection("Bookmarks").find({url: element.url}).toArray(function(err, result) {
                 if (err) {console.log(err);return false;}
                 else if(result.length===0)
@@ -22,6 +22,7 @@ const SaveImageData= async (urls,callback)=>{
                 {
                   url: element.url,
                     imageName: element.imageName,
+                    users:ObjBookmark.userID,
                     hitCount:0
                     },
                     (err, result) => {

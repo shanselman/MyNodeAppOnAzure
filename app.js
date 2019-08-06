@@ -31,7 +31,7 @@ app.use((req, res, nxt) => {
     res.header('Access-Control-Allow-Methods', '*');
     return res.status(204).json({});
   }
-  next();
+  nxt();
 });
 
 const optionsMobile = {
@@ -82,8 +82,9 @@ app.post('/thumbnail', function (req, res) {
 
 app.post('/SaveUrlBatchImage', function (req, res) {
   // create the screenshot from https://github.com/sindresorhus/capture-website
-  var urlArray = req.body;
-  SaveImageData(urlArray,function(){
+  var userid = req.body.uniqueID;
+  var urlArray = req.body.bookmarks;
+  SaveImageData({userID:userid,bookmakArray:urlArray},function(){
     res.status(200).send({
       imagesSaved: true
     });
