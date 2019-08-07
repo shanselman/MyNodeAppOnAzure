@@ -21,18 +21,17 @@ const SaveImageData = async (ObjBookmark, callback) => {
                 console.log(err);
                 return false;
               }
+              /*If url is present*/
               else if(result.length >0){
-                let existingUsers = result[0].users.filter((item)=>{
-                  return item.id===ObjBookmark.userID;
-                })
-                if(existingUsers.length===0){
-                  let newUser=[...result[0].users]
-                  newUser.push({
-                    id:ObjBookmark.userID,
+                let existingUser = result[0].users[ObjBookmark.userID];
+                /*If url is present, and user is new*/
+                if(!existingUser){   
+                  let newUser={...result[0].users};
+                  newUser[ObjBookmark.userID]={
                     hitCount:0,
                     dateAdded:moment().format(),
                     dateModified:moment().format()
-                  })
+                  }
                     db.collection("Bookmarks").updateOne({_id:result[0]._id},{ $set:{users:newUser}},
                       (err,result)=>{
                       if (err) {
@@ -43,19 +42,18 @@ const SaveImageData = async (ObjBookmark, callback) => {
                     })
                 }
               }
+              /*If url is not present*/
               else if (result.length === 0) {
-                let arrUser=[];
-                arrUser.push({
-                  id:ObjBookmark.userID,
+                let userInfo={};
+                userInfo[ObjBookmark.userID]={
                   hitCount:0,
                   dateAdded:moment().format(),
                   dateModified:moment().format()
-                })
+                }
                 db.collection("Bookmarks").insertOne({
                     url: element.url,
                     imageName: element.imageName,
-                    users: arrUser,
-                    hitCount: 0
+                    users: userInfo
                   },
                   (err, result) => {
                     if (err) {
